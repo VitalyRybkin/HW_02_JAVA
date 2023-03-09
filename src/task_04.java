@@ -2,6 +2,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Scanner;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class task_04 {
     public static void main(String[] args) {
@@ -13,9 +16,13 @@ public class task_04 {
         String oper = scan_line.next();
         System.out.print("Enter second num: ");
         int num_2 = scan_line.nextInt();
-        calc(num_1, oper, num_2);
+        try {
+            calc(num_1, oper, num_2);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
-    public static void calc(int num_1, String oper, int num_2){
+    public static void calc(int num_1, String oper, int num_2) throws IOException {
         int res = switch (oper) {
             case "-" -> num_1 - num_2;
             case "+" -> num_1 + num_2;
@@ -24,7 +31,7 @@ public class task_04 {
             default -> 0;
         };
 
-        String to_log;
+        String to_log = "";
         try(FileWriter writer = new FileWriter("calc_log.txt", true))
         {
             Date date = new Date();
@@ -38,6 +45,18 @@ public class task_04 {
         catch(IOException ex){
             System.out.println(ex.getMessage());
         }
-        System.out.print("Result is " + res);
+        System.out.println("Result is " + res);
+
+        Logger log = java.util.logging.Logger.getLogger(task_04.class.getName());
+        try {
+            FileHandler file = new FileHandler("calc_log.log", true);
+            log.addHandler(file);
+            SimpleFormatter form = new SimpleFormatter();
+            file.setFormatter(form);
+            log.info(to_log);
+            file.flush();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
     }
 }
